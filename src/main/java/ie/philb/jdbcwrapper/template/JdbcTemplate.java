@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -33,7 +34,7 @@ import javax.sql.DataSource;
  */
 public class JdbcTemplate {
 
-    protected static final Logger logger = Logger.getLogger(JdbcTemplate.class.getSimpleName());
+    protected static Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
     private final DataSource ds;
     private int limit = 0;
@@ -206,7 +207,7 @@ public class JdbcTemplate {
     public long executeInsert(String sql, JdbcParameterSet parameterSet) throws JdbcWrapperException {
 
         String normalisedSql = normalise(sql);
-                
+
         long id = 0;
 
         Map<Integer, String> parametersNamesByIndex = getParameterNamesByIndex(normalisedSql);
@@ -304,7 +305,7 @@ public class JdbcTemplate {
     private UpdateResponseBean executeUpdate(String sql, JdbcParameterSet parameterSet, boolean returnGeneratedKey) throws JdbcWrapperException {
 
         String normalisedSql = normalise(sql);
-        
+
         UpdateResponseBean response = new UpdateResponseBean();
 
         Map<Integer, String> parametersNamesByIndex = getParameterNamesByIndex(normalisedSql);
@@ -350,7 +351,7 @@ public class JdbcTemplate {
                     StringJdbcParameter sdp = (StringJdbcParameter) parameter;
                     ps.setString(index, sdp.getValue());
                 }
-                
+
                 if (parameter instanceof DateJdbcParameter) {
                     DateJdbcParameter ddp = (DateJdbcParameter) parameter;
                     Timestamp ts = new Timestamp(ddp.getValue().getTime());
@@ -391,7 +392,7 @@ public class JdbcTemplate {
         try {
             st.close();
         } catch (Exception ex) {
-
+            logger.error("Failed to close statement", ex);
         }
     }
 
@@ -403,7 +404,7 @@ public class JdbcTemplate {
         try {
             rs.close();
         } catch (Exception ex) {
-
+            logger.error("Failed to close result set", ex);
         }
     }
 
@@ -415,7 +416,7 @@ public class JdbcTemplate {
         try {
             conn.close();
         } catch (Exception ex) {
-
+            logger.error("Failed to close connection", ex);
         }
     }
 
@@ -467,8 +468,6 @@ public class JdbcTemplate {
         normalisedSql = normalisedSql.replace("(", " ( ");
         return normalisedSql;
     }
-    
-    
 
     class UpdateResponseBean {
 
